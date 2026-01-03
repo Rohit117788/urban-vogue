@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contest - Urban Vogue</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-palette"></i>
+                <span>Urban Vogue</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="contest.html" class="nav-link active"><i class="fas fa-trophy"></i> Contest</a></li>
+                <li><a href="social.html" class="nav-link"><i class="fas fa-users"></i> Social</a></li>
+                <li><a href="account.html" class="nav-link"><i class="fas fa-user"></i> Account</a></li>
+                <li><a href="#" class="nav-link" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section class="contest-section">
+            <div class="container">
+                <div class="page-header">
+                    <h1><i class="fas fa-trophy"></i> Fashion Contests</h1>
+                    <p>Showcase your creativity and compete with the best</p>
+                </div>
+
+                <div class="contest-filters">
+                    <button class="filter-btn active" data-filter="all">All Contests</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+                    <button class="filter-btn" data-filter="past">Past</button>
+                    <button class="btn btn-primary" id="createContestBtn" style="margin-left: auto;">
+                        <i class="fas fa-plus"></i> Create Contest
+                    </button>
+                </div>
+
+                <div class="contests-grid" id="contestsGrid">
+                    <!-- Contest cards will be dynamically loaded -->
+                    <div class="contest-card">
+                        <div class="contest-badge active">Active</div>
+                        <div class="contest-header">
+                            <h3>Spring Fashion Showcase 2024</h3>
+                            <span class="contest-date">
+                                <i class="fas fa-calendar"></i> Mar 15 - Apr 15, 2024
+                            </span>
+                        </div>
+                        <p class="contest-description">
+                            Design and showcase your best spring collection. Winners will be featured in our annual fashion magazine.
+                        </p>
+                        <div class="contest-stats">
+                            <div class="stat">
+                                <i class="fas fa-users"></i>
+                                <span>45 Participants</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-trophy"></i>
+                                <span>$5,000 Prize</span>
+                            </div>
+                        </div>
+                        <div class="contest-actions">
+                            <button class="btn btn-primary" onclick="joinContest('contest1')">
+                                <i class="fas fa-sign-in-alt"></i> Join Contest
+                            </button>
+                            <button class="btn btn-secondary" onclick="viewDetails('contest1')">
+                                <i class="fas fa-info-circle"></i> Details
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="contest-card">
+                        <div class="contest-badge upcoming">Upcoming</div>
+                        <div class="contest-header">
+                            <h3>Street Style Challenge</h3>
+                            <span class="contest-date">
+                                <i class="fas fa-calendar"></i> Apr 20 - May 20, 2024
+                            </span>
+                        </div>
+                        <p class="contest-description">
+                            Capture urban fashion at its finest. Submit your best street style photography.
+                        </p>
+                        <div class="contest-stats">
+                            <div class="stat">
+                                <i class="fas fa-users"></i>
+                                <span>0 Participants</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-trophy"></i>
+                                <span>$2,500 Prize</span>
+                            </div>
+                        </div>
+                        <div class="contest-actions">
+                            <button class="btn btn-primary" onclick="joinContest('contest2')" disabled>
+                                <i class="fas fa-clock"></i> Coming Soon
+                            </button>
+                            <button class="btn btn-secondary" onclick="viewDetails('contest2')">
+                                <i class="fas fa-info-circle"></i> Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Create Contest Modal -->
+    <div class="modal" id="createContestModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeCreateContestModal">&times;</span>
+            <h2>Create New Contest</h2>
+            <form id="createContestForm">
+                <div class="form-group">
+                    <label for="contestTitle">Contest Title</label>
+                    <input type="text" id="contestTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="contestDescription">Description</label>
+                    <textarea id="contestDescription" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="contestStartDate">Start Date</label>
+                    <input type="date" id="contestStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="contestEndDate">End Date</label>
+                    <input type="date" id="contestEndDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="contestPrize">Prize Amount ($)</label>
+                    <input type="number" id="contestPrize" min="0" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Create Contest</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Urban Vogue College Club. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/contest.js"></script>
+</body>
+</html>
+

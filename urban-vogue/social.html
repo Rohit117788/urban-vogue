@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social - Urban Vogue</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-palette"></i>
+                <span>Urban Vogue</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="contest.html" class="nav-link"><i class="fas fa-trophy"></i> Contest</a></li>
+                <li><a href="social.html" class="nav-link active"><i class="fas fa-users"></i> Social</a></li>
+                <li><a href="account.html" class="nav-link"><i class="fas fa-user"></i> Account</a></li>
+                <li><a href="#" class="nav-link" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section class="social-section">
+            <div class="container">
+                <div class="page-header">
+                    <h1><i class="fas fa-users"></i> Social Feed</h1>
+                    <p>Connect with the Urban Vogue community</p>
+                </div>
+
+                <div class="social-layout">
+                    <!-- Sidebar -->
+                    <aside class="social-sidebar">
+                        <div class="sidebar-card">
+                            <h3>Trending Topics</h3>
+                            <ul class="trending-list">
+                                <li><a href="#"><i class="fas fa-hashtag"></i> #SpringFashion</a></li>
+                                <li><a href="#"><i class="fas fa-hashtag"></i> #StreetStyle</a></li>
+                                <li><a href="#"><i class="fas fa-hashtag"></i> #DesignContest</a></li>
+                                <li><a href="#"><i class="fas fa-hashtag"></i> #FashionWeek</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="sidebar-card">
+                            <h3>Active Members</h3>
+                            <ul class="members-list" id="activeMembers">
+                                <li>
+                                    <div class="member-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="member-info">
+                                        <span class="member-name">Fashionista123</span>
+                                        <span class="member-status">Online</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </aside>
+
+                    <!-- Main Feed -->
+                    <div class="social-feed">
+                        <div class="create-post-card">
+                            <div class="post-input">
+                                <div class="user-avatar-small">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <textarea id="postContent" placeholder="What's on your mind? Share your fashion inspiration..."></textarea>
+                            </div>
+                            <div class="post-actions">
+                                <button class="post-action-btn" id="addImageBtn">
+                                    <i class="fas fa-image"></i> Photo
+                                </button>
+                                <button class="post-action-btn" id="addVideoBtn">
+                                    <i class="fas fa-video"></i> Video
+                                </button>
+                                <button class="btn btn-primary" id="publishPostBtn">
+                                    <i class="fas fa-paper-plane"></i> Publish
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="posts-container" id="postsContainer">
+                            <!-- Posts will be dynamically loaded -->
+                            <div class="post-card">
+                                <div class="post-header">
+                                    <div class="post-author">
+                                        <div class="user-avatar-small">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="author-info">
+                                            <span class="author-name">FashionDesigner</span>
+                                            <span class="post-time">2 hours ago</span>
+                                        </div>
+                                    </div>
+                                    <div class="post-menu">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </div>
+                                </div>
+                                <div class="post-content">
+                                    <p>Just finished my latest collection! Can't wait to showcase it at the Spring Fashion Showcase contest. 🎨✨</p>
+                                </div>
+                                <div class="post-image">
+                                    <img src="https://via.placeholder.com/600x400" alt="Fashion design">
+                                </div>
+                                <div class="post-engagement">
+                                    <button class="engagement-btn">
+                                        <i class="far fa-heart"></i> Like
+                                    </button>
+                                    <button class="engagement-btn">
+                                        <i class="far fa-comment"></i> Comment
+                                    </button>
+                                    <button class="engagement-btn">
+                                        <i class="far fa-share-square"></i> Share
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Urban Vogue College Club. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/social.js"></script>
+</body>
+</html>
+
