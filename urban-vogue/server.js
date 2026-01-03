@@ -980,13 +980,23 @@ app.put('/api/users/:id/profile-picture', authenticateToken, async (req, res) =>
     }
 });
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', message: 'Server is running' });
+});
+
 // Initialize and start server
 ensureDataDir().then(() => {
     app.listen(PORT, () => {
+        console.log('='.repeat(50));
         console.log(`Urban Vogue server running on http://localhost:${PORT}`);
         console.log(`Data directory: ${DATA_DIR}`);
+        console.log(`Health check: http://localhost:${PORT}/health`);
+        console.log('='.repeat(50));
+        console.log('Server is ready! You can now use the website.');
     });
 }).catch(error => {
     console.error('Failed to start server:', error);
+    process.exit(1);
 });
 

@@ -46,24 +46,59 @@ A modern web application for the Urban Vogue college fashion club with user auth
    npm install
    ```
 
-2. **Create the first admin user (optional but recommended):**
+2. **Start the server:**
+   
+   **Windows:** Double-click `start-server.bat` or run:
+   ```bash
+   npm start
+   ```
+   
+   **Mac/Linux:** Run:
+   ```bash
+   chmod +x start-server.sh
+   ./start-server.sh
+   ```
+   
+   Or manually:
+   ```bash
+   npm start
+   ```
+
+3. **Verify server is running:**
+   - You should see: `Urban Vogue server running on http://localhost:3000`
+   - Open browser and go to: `http://localhost:3000`
+   - Check health: `http://localhost:3000/health`
+
+4. **Create the first admin user (optional but recommended):**
    ```bash
    node setup-admin.js
    ```
    This will create an admin account. Regular users can sign up through the website.
 
-3. **Start the server:**
-   ```bash
-   npm start
-   ```
-
-   Or for development with auto-reload:
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser:**
+5. **Open your browser:**
    Navigate to `http://localhost:3000`
+
+## Troubleshooting Network Errors
+
+If you see "Network error" when trying to login or signup:
+
+1. **Make sure the server is running:**
+   - Check the terminal/command prompt for: `Urban Vogue server running on http://localhost:3000`
+   - If not running, start it with `npm start`
+
+2. **Check if port 3000 is available:**
+   - If port 3000 is in use, change `PORT` in `server.js` to another port (e.g., 3001)
+   - Update `API_BASE_URL` in `js/auth.js` to match
+
+3. **Verify Node.js is installed:**
+   ```bash
+   node --version
+   npm --version
+   ```
+
+4. **Check browser console (F12):**
+   - Look for specific error messages
+   - Check Network tab to see if requests are being made
 
 ## Project Structure
 

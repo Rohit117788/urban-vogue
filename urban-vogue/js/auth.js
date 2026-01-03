@@ -34,6 +34,20 @@ function clearAuth() {
 // Login function
 async function login(username, password) {
     try {
+        console.log('Login attempt for:', username); // Debug log
+        
+        // First, check if server is reachable
+        try {
+            const healthCheck = await fetch(`${API_BASE_URL.replace('/api', '')}/`, { method: 'HEAD' });
+            console.log('Server health check:', healthCheck.status);
+        } catch (healthError) {
+            console.error('Server not reachable:', healthError);
+            return { 
+                success: false, 
+                message: 'Cannot connect to server. Please make sure the server is running. Run "npm start" in the urban-vogue folder.' 
+            };
+        }
+        
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: {
@@ -42,7 +56,20 @@ async function login(username, password) {
             body: JSON.stringify({ username, password })
         });
 
-        const data = await response.json();
+        console.log('Login response status:', response.status); // Debug log
+
+        let data;
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+            console.error('Failed to parse response:', jsonError);
+            const text = await response.text();
+            console.error('Response text:', text);
+            return { 
+                success: false, 
+                message: `Server error (${response.status}). Please check the server console for details.` 
+            };
+        }
 
         if (response.ok) {
             setAuth(data.token, data.user);
@@ -52,7 +79,13 @@ async function login(username, password) {
         }
     } catch (error) {
         console.error('Login error:', error);
-        return { success: false, message: 'Network error. Please try again.' };
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            return { 
+                success: false, 
+                message: 'Cannot connect to server. Please make sure the server is running on http://localhost:3000. Run "npm start" in the urban-vogue folder.' 
+            };
+        }
+        return { success: false, message: 'Network error. Please check if the server is running and try again.' };
     }
 }
 
@@ -60,6 +93,19 @@ async function login(username, password) {
 async function signup(userData) {
     try {
         console.log('Signup function called with:', { ...userData, password: '***' }); // Debug log
+        console.log('API URL:', `${API_BASE_URL}/auth/signup`); // Debug log
+        
+        // First, check if server is reachable
+        try {
+            const healthCheck = await fetch(`${API_BASE_URL.replace('/api', '')}/`, { method: 'HEAD' });
+            console.log('Server health check:', healthCheck.status);
+        } catch (healthError) {
+            console.error('Server not reachable:', healthError);
+            return { 
+                success: false, 
+                message: 'Cannot connect to server. Please make sure the server is running. Run "npm start" in the urban-vogue folder.' 
+            };
+        }
         
         const response = await fetch(`${API_BASE_URL}/auth/signup`, {
             method: 'POST',
@@ -71,7 +117,19 @@ async function signup(userData) {
 
         console.log('Signup response status:', response.status); // Debug log
 
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+            console.error('Failed to parse response:', jsonError);
+            const text = await response.text();
+            console.error('Response text:', text);
+            return { 
+                success: false, 
+                message: `Server error (${response.status}). Please check the server console for details.` 
+            };
+        }
+
         console.log('Signup response data:', { ...data, token: data.token ? '***' : null }); // Debug log
 
         if (response.ok) {
@@ -82,6 +140,12 @@ async function signup(userData) {
         }
     } catch (error) {
         console.error('Signup error:', error);
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            return { 
+                success: false, 
+                message: 'Cannot connect to server. Please make sure the server is running on http://localhost:3000. Run "npm start" in the urban-vogue folder.' 
+            };
+        }
         return { success: false, message: 'Network error. Please check if the server is running and try again.' };
     }
 }
