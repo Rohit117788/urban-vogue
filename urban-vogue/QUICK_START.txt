@@ -1,0 +1,32 @@
+========================================
+URBAN VOGUE - QUICK START GUIDE
+========================================
+
+TO FIX THE "Cannot connect to server" ERROR:
+
+1. Open Command Prompt or PowerShell
+2. Navigate to the urban-vogue folder:
+   cd D:\Collage\CurserCodes\CodeAlpha\urban-vogue
+
+3. Start the server:
+   npm start
+
+   OR double-click: start-server.bat
+
+4. Wait for this message:
+   "Urban Vogue server running on http://localhost:3000"
+
+5. Keep the server window OPEN (don't close it)
+
+6. Now open your browser and go to:
+   http://localhost:3000
+
+7. Try login/signup again - it should work now!
+
+========================================
+IMPORTANT:
+- The server MUST be running for the website to work
+- Keep the server window open while using the website
+- To stop the server, press Ctrl+C in the server window
+========================================
+
