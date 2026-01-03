@@ -51,13 +51,20 @@
                     <!-- Profile Card -->
                     <div class="profile-card">
                         <div class="profile-header">
-                            <div class="profile-avatar-large">
+                            <div class="profile-avatar-large" id="profileAvatarLarge">
                                 <i class="fas fa-user"></i>
+                                <div class="uv-logo" id="uvLogo">UV</div>
                             </div>
                             <div class="profile-info">
                                 <h2 id="profileUsername">Username</h2>
                                 <p id="profileEmail">email@example.com</p>
                                 <span class="profile-role" id="profileRole">Member</span>
+                            </div>
+                            <div class="profile-picture-upload">
+                                <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
+                                <button class="btn btn-secondary" onclick="document.getElementById('profilePictureInput').click()">
+                                    <i class="fas fa-camera"></i> Upload Picture
+                                </button>
                             </div>
                         </div>
                         <div class="profile-stats">
@@ -155,18 +162,24 @@
                         </div>
                     </div>
 
-                    <!-- Admin Panel (only visible to admins) -->
+                    <!-- Member/Admin Panel -->
                     <div class="admin-panel" id="adminPanel" style="display: none;">
-                        <h3><i class="fas fa-shield-alt"></i> Admin Panel</h3>
+                        <h3><i class="fas fa-shield-alt"></i> Member Controls</h3>
                         <div class="admin-actions">
-                            <button class="btn btn-primary" onclick="manageUsers()">
-                                <i class="fas fa-users-cog"></i> Manage Users
+                            <button class="btn btn-primary" onclick="uploadSlideshowImages()">
+                                <i class="fas fa-images"></i> Upload Slideshow Images
+                            </button>
+                            <button class="btn btn-primary" onclick="uploadAnnouncement()">
+                                <i class="fas fa-bullhorn"></i> Upload Announcement
                             </button>
                             <button class="btn btn-primary" onclick="manageContests()">
                                 <i class="fas fa-trophy"></i> Manage Contests
                             </button>
                             <button class="btn btn-primary" onclick="viewReports()">
                                 <i class="fas fa-chart-bar"></i> View Reports
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteChatMessages()">
+                                <i class="fas fa-trash"></i> Delete Chat Messages
                             </button>
                         </div>
                     </div>

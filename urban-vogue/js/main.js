@@ -29,7 +29,54 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
     }
+
+    // Load contest results (top 3)
+    loadContestResults();
 });
+
+// Load contest results
+async function loadContestResults() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/contests/results`);
+        
+        if (response.ok) {
+            const results = await response.json();
+            if (results.length > 0) {
+                displayContestResults(results);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading contest results:', error);
+    }
+}
+
+// Display contest results
+function displayContestResults(results) {
+    const contestResults = document.getElementById('contestResults');
+    const winnersGrid = document.getElementById('winnersGrid');
+    
+    if (!contestResults || !winnersGrid) return;
+
+    contestResults.style.display = 'block';
+    winnersGrid.innerHTML = results.map(winner => {
+        const rankClass = winner.rank === 1 ? 'first' : winner.rank === 2 ? 'second' : 'third';
+        const medal = winner.rank === 1 ? '🥇' : winner.rank === 2 ? '🥈' : '🥉';
+        
+        return `
+            <div class="winner-card ${rankClass}">
+                <div class="winner-rank">${medal}</div>
+                <div class="winner-avatar">
+                    ${winner.profilePicture 
+                        ? `<img src="${winner.profilePicture}" alt="${winner.username}">`
+                        : `<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 3rem;">UV</div>`
+                    }
+                </div>
+                <div class="winner-name">${winner.username}</div>
+                <div class="winner-votes">${winner.votes} ${winner.votes === 1 ? 'vote' : 'votes'}</div>
+            </div>
+        `;
+    }).join('');
+}
 
 // Load user statistics
 async function loadUserStats() {

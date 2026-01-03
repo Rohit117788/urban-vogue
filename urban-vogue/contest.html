@@ -84,9 +84,16 @@
                             <button class="btn btn-primary" onclick="joinContest('contest1')">
                                 <i class="fas fa-sign-in-alt"></i> Join Contest
                             </button>
+                            <button class="btn btn-success" onclick="voteContest('contest1')" id="voteBtn_contest1" style="display: none;">
+                                <i class="fas fa-vote-yea"></i> Vote
+                            </button>
                             <button class="btn btn-secondary" onclick="viewDetails('contest1')">
                                 <i class="fas fa-info-circle"></i> Details
                             </button>
+                        </div>
+                        <div class="contest-voting" id="votingInfo_contest1" style="display: none;">
+                            <p class="vote-count">Votes: <span id="voteCount_contest1">0</span></p>
+                            <p class="vote-status" id="voteStatus_contest1"></p>
                         </div>
                     </div>
 

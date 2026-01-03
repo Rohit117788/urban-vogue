@@ -19,6 +19,9 @@ const DATA_DIR = path.join(__dirname, 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const CONTESTS_FILE = path.join(DATA_DIR, 'contests.json');
 const POSTS_FILE = path.join(DATA_DIR, 'posts.json');
+const CHAT_FILE = path.join(DATA_DIR, 'chat.json');
+const SLIDESHOW_FILE = path.join(DATA_DIR, 'slideshow.json');
+const VOTES_FILE = path.join(DATA_DIR, 'votes.json');
 
 // Ensure data directory exists
 async function ensureDataDir() {
@@ -42,6 +45,30 @@ async function ensureDataDir() {
             await fs.access(POSTS_FILE);
         } catch {
             await fs.writeFile(POSTS_FILE, JSON.stringify([]));
+        }
+        
+        try {
+            await fs.access(CHAT_FILE);
+        } catch {
+            await fs.writeFile(CHAT_FILE, JSON.stringify([]));
+        }
+        
+        try {
+            await fs.access(SLIDESHOW_FILE);
+        } catch {
+            await fs.writeFile(SLIDESHOW_FILE, JSON.stringify([
+                { url: 'https://via.placeholder.com/800x400/6366f1/ffffff?text=Urban+Vogue+1', alt: 'Urban Vogue 1' },
+                { url: 'https://via.placeholder.com/800x400/8b5cf6/ffffff?text=Urban+Vogue+2', alt: 'Urban Vogue 2' },
+                { url: 'https://via.placeholder.com/800x400/ec4899/ffffff?text=Urban+Vogue+3', alt: 'Urban Vogue 3' },
+                { url: 'https://via.placeholder.com/800x400/10b981/ffffff?text=Urban+Vogue+4', alt: 'Urban Vogue 4' },
+                { url: 'https://via.placeholder.com/800x400/f59e0b/ffffff?text=Urban+Vogue+5', alt: 'Urban Vogue 5' }
+            ]));
+        }
+        
+        try {
+            await fs.access(VOTES_FILE);
+        } catch {
+            await fs.writeFile(VOTES_FILE, JSON.stringify({}));
         }
     } catch (error) {
         console.error('Error setting up data directory:', error);
@@ -688,6 +715,256 @@ app.delete('/api/posts/:id', authenticateToken, async (req, res) => {
         res.json({ message: 'Post deleted successfully' });
     } catch (error) {
         console.error('Delete post error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Get contest results (top 3 overall)
+app.get('/api/contests/results', async (req, res) => {
+    try {
+        const votes = await readData(VOTES_FILE);
+        const contests = await readData(CONTESTS_FILE);
+        const users = await readData(USERS_FILE);
+        
+        // Get results for all active contests
+        const allResults = [];
+        
+        for (const contest of contests) {
+            const contestVotes = votes[contest.id] || {};
+            
+            if (Object.keys(contestVotes).length === 0) continue;
+            
+            // Count votes per participant
+            const voteCounts = {};
+            Object.values(contestVotes).forEach(vote => {
+                voteCounts[vote.participantId] = (voteCounts[vote.participantId] || 0) + 1;
+            });
+            
+            // Get top 3
+            const sorted = Object.entries(voteCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+            
+            const results = sorted.map(([participantId, count], index) => {
+                const participant = users.find(u => u.id === participantId);
+                return {
+                    contestId: contest.id,
+                    contestTitle: contest.title,
+                    rank: index + 1,
+                    participantId,
+                    username: participant ? participant.username : 'Unknown',
+                    profilePicture: participant ? participant.profilePicture : null,
+                    votes: count
+                };
+            });
+            
+            if (results.length > 0) {
+                allResults.push(...results);
+            }
+        }
+        
+        // Return top 3 overall
+        res.json(allResults.slice(0, 3));
+    } catch (error) {
+        console.error('Get results error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Chat Routes
+app.get('/api/chat/messages', authenticateToken, async (req, res) => {
+    try {
+        const messages = await readData(CHAT_FILE);
+        res.json(messages.slice(-50));
+    } catch (error) {
+        console.error('Get chat messages error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+app.post('/api/chat/messages', authenticateToken, async (req, res) => {
+    try {
+        const { message } = req.body;
+        if (!message || message.trim().length === 0) {
+            return res.status(400).json({ message: 'Message required' });
+        }
+
+        const messages = await readData(CHAT_FILE);
+        const users = await readData(USERS_FILE);
+        const user = users.find(u => u.id === req.user.id);
+
+        const newMessage = {
+            id: Date.now().toString(),
+            userId: req.user.id,
+            username: user ? user.username : 'Unknown',
+            profilePicture: user ? user.profilePicture : null,
+            message: message.trim(),
+            timestamp: new Date().toISOString()
+        };
+
+        messages.push(newMessage);
+        if (messages.length > 1000) {
+            messages.splice(0, messages.length - 1000);
+        }
+        await writeData(CHAT_FILE, messages);
+
+        res.status(201).json(newMessage);
+    } catch (error) {
+        console.error('Send chat message error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+app.delete('/api/chat/messages/:id', authenticateToken, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin' && req.user.role !== 'member') {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        const messages = await readData(CHAT_FILE);
+        const messageIndex = messages.findIndex(m => m.id === req.params.id);
+
+        if (messageIndex === -1) {
+            return res.status(404).json({ message: 'Message not found' });
+        }
+
+        messages.splice(messageIndex, 1);
+        await writeData(CHAT_FILE, messages);
+
+        res.json({ message: 'Message deleted successfully' });
+    } catch (error) {
+        console.error('Delete chat message error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+app.get('/api/chat/online', authenticateToken, async (req, res) => {
+    try {
+        const users = await readData(USERS_FILE);
+        res.json({ count: users.length });
+    } catch (error) {
+        console.error('Get online count error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Slideshow Routes
+app.get('/api/slideshow/images', async (req, res) => {
+    try {
+        const images = await readData(SLIDESHOW_FILE);
+        res.json(images);
+    } catch (error) {
+        console.error('Get slideshow images error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+app.post('/api/slideshow/images', authenticateToken, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin' && req.user.role !== 'member') {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        const { images } = req.body;
+        if (!images || !Array.isArray(images)) {
+            return res.status(400).json({ message: 'Images array required' });
+        }
+
+        await writeData(SLIDESHOW_FILE, images);
+        res.json({ message: 'Slideshow images updated successfully', images });
+    } catch (error) {
+        console.error('Update slideshow images error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Voting Routes
+app.post('/api/contests/:id/vote', authenticateToken, async (req, res) => {
+    try {
+        const { participantId } = req.body;
+        if (!participantId) {
+            return res.status(400).json({ message: 'Participant ID required' });
+        }
+
+        const votes = await readData(VOTES_FILE);
+        const contestId = req.params.id;
+        const voterId = req.user.id;
+
+        if (!votes[contestId]) {
+            votes[contestId] = {};
+        }
+
+        if (votes[contestId][voterId]) {
+            return res.status(400).json({ message: 'You have already voted in this contest' });
+        }
+
+        votes[contestId][voterId] = {
+            participantId,
+            timestamp: new Date().toISOString()
+        };
+
+        await writeData(VOTES_FILE, votes);
+
+        res.json({ message: 'Vote recorded successfully' });
+    } catch (error) {
+        console.error('Vote error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+app.get('/api/contests/:id/votes', authenticateToken, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin' && req.user.role !== 'member') {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        const votes = await readData(VOTES_FILE);
+        const contestVotes = votes[req.params.id] || {};
+
+        const voteCounts = {};
+        Object.values(contestVotes).forEach(vote => {
+            voteCounts[vote.participantId] = (voteCounts[vote.participantId] || 0) + 1;
+        });
+
+        res.json({
+            totalVotes: Object.keys(contestVotes).length,
+            voteCounts,
+            votes: contestVotes
+        });
+    } catch (error) {
+        console.error('Get votes error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+app.put('/api/users/:id/profile-picture', authenticateToken, async (req, res) => {
+    try {
+        const { profilePicture } = req.body;
+        const users = await readData(USERS_FILE);
+        const userIndex = users.findIndex(u => u.id === req.params.id);
+
+        if (userIndex === -1) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (req.user.id !== req.params.id && req.user.role !== 'admin' && req.user.role !== 'member') {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        users[userIndex].profilePicture = profilePicture;
+        await writeData(USERS_FILE, users);
+
+        res.json({
+            user: {
+                id: users[userIndex].id,
+                username: users[userIndex].username,
+                email: users[userIndex].email,
+                role: users[userIndex].role,
+                profilePicture: users[userIndex].profilePicture
+            }
+        });
+    } catch (error) {
+        console.error('Update profile picture error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });

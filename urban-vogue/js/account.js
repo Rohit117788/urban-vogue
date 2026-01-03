@@ -42,6 +42,41 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load user data
     loadUserData();
     loadUserStats();
+    loadProfilePicture();
+
+    // Profile picture upload
+    const profilePictureInput = document.getElementById('profilePictureInput');
+    if (profilePictureInput) {
+        profilePictureInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                alert('Image size must be less than 5MB');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const base64 = event.target.result;
+                const user = getCurrentUser();
+                
+                const result = await updateProfilePicture(user.id, base64);
+                if (result.success) {
+                    alert('Profile picture updated successfully!');
+                    loadProfilePicture();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     // Real-time username validation for profile edit
     const editUsernameInput = document.getElementById('editUsername');
@@ -228,9 +263,69 @@ async function loadUserStats() {
     }
 }
 
-// Admin functions
-function manageUsers() {
-    alert('User management feature coming soon!');
+// Member/Admin functions
+function uploadSlideshowImages() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true;
+    input.onchange = async function(e) {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        const images = [];
+        for (const file of files) {
+            if (!file.type.startsWith('image/')) continue;
+            if (file.size > 5 * 1024 * 1024) {
+                alert(`${file.name} is too large (max 5MB)`);
+                continue;
+            }
+
+            const reader = new FileReader();
+            const base64 = await new Promise((resolve) => {
+                reader.onload = (event) => resolve(event.target.result);
+                reader.readAsDataURL(file);
+            });
+
+            images.push({ url: base64, alt: file.name });
+        }
+
+        if (images.length === 0) {
+            alert('No valid images selected');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`${API_BASE_URL}/slideshow/images`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ images })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Slideshow images updated successfully!');
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error uploading slideshow images:', error);
+            alert('Network error');
+        }
+    };
+    input.click();
+}
+
+function uploadAnnouncement() {
+    const announcement = prompt('Enter announcement text:');
+    if (!announcement) return;
+
+    // This would create a post or announcement
+    alert('Announcement feature - would create a post/announcement');
 }
 
 function manageContests() {
@@ -238,6 +333,84 @@ function manageContests() {
 }
 
 function viewReports() {
-    alert('Reports feature coming soon!');
+    alert('Reports feature - would show voting statistics and analytics');
+}
+
+async function deleteChatMessages() {
+    if (!confirm('Are you sure you want to delete chat messages? This cannot be undone.')) {
+        return;
+    }
+
+    const messageId = prompt('Enter message ID to delete (or leave empty to delete all):');
+    if (messageId === null) return;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        if (messageId) {
+            const response = await fetch(`${API_BASE_URL}/chat/messages/${messageId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                alert('Message deleted successfully');
+            } else {
+                alert('Error deleting message');
+            }
+        } else {
+            // Delete all messages (would need a new endpoint)
+            alert('Bulk delete feature - would delete all messages');
+        }
+    } catch (error) {
+        console.error('Error deleting messages:', error);
+        alert('Network error');
+    }
+}
+
+// Load profile picture
+function loadProfilePicture() {
+    const user = getCurrentUser();
+    if (!user) return;
+
+    const profileAvatar = document.getElementById('profileAvatarLarge');
+    if (profileAvatar && user.profilePicture) {
+        profileAvatar.innerHTML = `<img src="${user.profilePicture}" alt="${user.username}">`;
+        const uvLogo = document.createElement('div');
+        uvLogo.className = 'uv-logo';
+        uvLogo.textContent = 'UV';
+        profileAvatar.appendChild(uvLogo);
+    }
+}
+
+// Update profile picture
+async function updateProfilePicture(userId, profilePicture) {
+    try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/profile-picture`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ profilePicture })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Update stored user data
+            const currentUser = getCurrentUser();
+            const updatedUser = { ...currentUser, profilePicture: data.user.profilePicture };
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            return { success: true, user: data.user };
+        } else {
+            return { success: false, message: data.message };
+        }
+    } catch (error) {
+        console.error('Update profile picture error:', error);
+        return { success: false, message: 'Network error' };
+    }
 }
 

@@ -89,6 +89,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load contests
     loadContests();
+    
+    // Load voting info if user is logged in
+    const user = getCurrentUser();
+    if (user) {
+        loadVotingInfo();
+    }
 });
 
 // Load contests from API

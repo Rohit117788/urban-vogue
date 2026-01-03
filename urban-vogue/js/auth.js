@@ -146,7 +146,7 @@ async function changePassword(userId, currentPassword, newPassword) {
 // Check if user is admin
 function isAdmin() {
     const user = getCurrentUser();
-    return user && user.role === 'admin';
+    return user && (user.role === 'admin' || user.role === 'member');
 }
 
 // Initialize auth check on page load
@@ -227,20 +227,41 @@ function updateUserUI(user) {
     const roleElements = document.querySelectorAll('#userRole, .user-role, #profileRole');
     roleElements.forEach(el => {
         if (el) {
-            el.textContent = user.role === 'admin' ? 'Admin' : 'Member';
+            const roleText = user.role === 'admin' ? 'Admin' : user.role === 'member' ? 'Member' : 'User';
+            el.textContent = roleText;
             if (el.classList) {
                 el.classList.add(user.role === 'admin' ? 'admin-role' : 'member-role');
             }
         }
     });
 
-    // Show admin panel if user is admin
-    if (isAdmin()) {
+    // Show admin panel if user is admin or member
+    if (isAdmin() || (user.role === 'member')) {
         const adminPanel = document.getElementById('adminPanel');
         if (adminPanel) {
             adminPanel.style.display = 'block';
         }
     }
+
+    // Update profile pictures
+    updateProfilePictures(user);
+}
+
+// Update profile pictures throughout the site
+function updateProfilePictures(user) {
+    if (!user.profilePicture) return;
+
+    // Update avatar in navigation
+    const navAvatars = document.querySelectorAll('.user-avatar-small, .chat-avatar, .profile-avatar-large');
+    navAvatars.forEach(avatar => {
+        if (!avatar.querySelector('img')) {
+            const img = document.createElement('img');
+            img.src = user.profilePicture;
+            img.alt = user.username;
+            avatar.innerHTML = '';
+            avatar.appendChild(img);
+        }
+    });
 }
 
 // Logout button handler
