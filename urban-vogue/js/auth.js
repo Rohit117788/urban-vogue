@@ -59,6 +59,8 @@ async function login(username, password) {
 // Signup function
 async function signup(userData) {
     try {
+        console.log('Signup function called with:', { ...userData, password: '***' }); // Debug log
+        
         const response = await fetch(`${API_BASE_URL}/auth/signup`, {
             method: 'POST',
             headers: {
@@ -67,7 +69,10 @@ async function signup(userData) {
             body: JSON.stringify(userData)
         });
 
+        console.log('Signup response status:', response.status); // Debug log
+
         const data = await response.json();
+        console.log('Signup response data:', { ...data, token: data.token ? '***' : null }); // Debug log
 
         if (response.ok) {
             setAuth(data.token, data.user);
@@ -77,7 +82,7 @@ async function signup(userData) {
         }
     } catch (error) {
         console.error('Signup error:', error);
-        return { success: false, message: 'Network error. Please try again.' };
+        return { success: false, message: 'Network error. Please check if the server is running and try again.' };
     }
 }
 

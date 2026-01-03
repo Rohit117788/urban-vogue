@@ -277,13 +277,21 @@ app.post('/api/auth/signup', async (req, res) => {
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
+        
+        // Determine user role - allow 'member' role if selected, otherwise default to 'user'
+        let userRole = 'user';
+        if (role === 'member') {
+            userRole = 'member';
+        }
+        
         const newUser = {
             id: Date.now().toString(),
             username: username.trim(), // Store trimmed username
             email: email.trim(),
             passwordHash,
-            role: 'member', // Always set to member for security
+            role: userRole,
             bio: '',
+            profilePicture: null,
             preferences: {
                 emailNotifications: true,
                 contestReminders: true,
@@ -301,6 +309,8 @@ app.post('/api/auth/signup', async (req, res) => {
             { expiresIn: '7d' }
         );
 
+        console.log('New user created:', { id: newUser.id, username: newUser.username, email: newUser.email }); // Debug log
+
         res.status(201).json({
             token,
             user: {
@@ -309,6 +319,7 @@ app.post('/api/auth/signup', async (req, res) => {
                 email: newUser.email,
                 role: newUser.role,
                 bio: newUser.bio,
+                profilePicture: newUser.profilePicture,
                 preferences: newUser.preferences
             }
         });

@@ -146,16 +146,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handle signup form submission
-    if (signupForm) {
-        signupForm.addEventListener('submit', async function(e) {
+    // Handle signup form submission - use event delegation to ensure it works
+    const signupFormElement = document.getElementById('signupForm');
+    if (signupFormElement) {
+        signupFormElement.addEventListener('submit', async function(e) {
             e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('Signup form submitted'); // Debug log
             
             const username = document.getElementById('signupUsername').value.trim();
             const email = document.getElementById('signupEmail').value.trim();
             const password = document.getElementById('signupPassword').value;
             const confirmPassword = document.getElementById('signupConfirmPassword').value;
             const role = document.getElementById('userRole').value;
+
+            console.log('Form values:', { username, email, password: '***', confirmPassword: '***', role }); // Debug log
 
             // Validation
             if (!username || !email || !password || !confirmPassword) {
@@ -164,10 +170,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Username validation
-            const usernameValidation = validateUsernameFormat(username);
-            if (!usernameValidation.isValid) {
-                showMessage(signupMessage, usernameValidation.message, 'error');
-                return;
+            if (typeof validateUsernameFormat === 'function') {
+                const usernameValidation = validateUsernameFormat(username);
+                if (!usernameValidation.isValid) {
+                    showMessage(signupMessage, usernameValidation.message, 'error');
+                    return;
+                }
             }
 
             if (password !== confirmPassword) {
@@ -192,32 +200,49 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Disable form during submission
-            const submitBtn = signupForm.querySelector('button[type="submit"]');
+            const submitBtn = signupFormElement.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
 
-            const result = await signup({
-                username,
-                email,
-                password,
-                role: role === 'admin' ? 'member' // For security, new signups are always members
-            });
+            console.log('Calling signup function...'); // Debug log
 
-            if (result.success) {
-                showMessage(signupMessage, 'Account created successfully! Redirecting...', 'success');
-                
-                // Close modal and redirect
-                setTimeout(() => {
-                    signupModal.style.display = 'none';
-                    window.location.href = 'index.html';
-                }, 1000);
-            } else {
-                showMessage(signupMessage, result.message, 'error');
+            try {
+                const result = await signup({
+                    username,
+                    email,
+                    password,
+                    role: role // Allow member role if selected
+                });
+
+                console.log('Signup result:', result); // Debug log
+
+                if (result.success) {
+                    showMessage(signupMessage, 'Account created successfully! Redirecting...', 'success');
+                    
+                    // Close modal and redirect
+                    setTimeout(() => {
+                        const modal = document.getElementById('signupModal');
+                        if (modal) {
+                            modal.style.display = 'none';
+                            modal.classList.remove('show');
+                        }
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    showMessage(signupMessage, result.message || 'Signup failed. Please try again.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                showMessage(signupMessage, 'An error occurred. Please try again.', 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             }
         });
+    } else {
+        console.error('Signup form not found!');
     }
 
     // Forgot password handler
