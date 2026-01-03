@@ -1,5 +1,13 @@
 // Account page functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in
+    const user = getCurrentUser();
+    if (!user) {
+        // Redirect to login if not logged in
+        window.location.href = 'login.html';
+        return;
+    }
+
     // Mobile menu toggle
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.getElementById('navMenu');
@@ -35,16 +43,55 @@ document.addEventListener('DOMContentLoaded', function() {
     loadUserData();
     loadUserStats();
 
+    // Real-time username validation for profile edit
+    const editUsernameInput = document.getElementById('editUsername');
+    if (editUsernameInput) {
+        const usernameFeedback = document.createElement('small');
+        usernameFeedback.className = 'username-feedback';
+        editUsernameInput.parentElement.appendChild(usernameFeedback);
+        
+        editUsernameInput.addEventListener('input', function() {
+            const username = this.value.trim();
+            if (username.length > 0) {
+                const validation = validateUsernameFormat(username);
+                if (validation.isValid) {
+                    usernameFeedback.textContent = '✓ Username is valid';
+                    usernameFeedback.className = 'username-feedback valid';
+                    this.style.borderColor = 'var(--success-color)';
+                } else {
+                    usernameFeedback.textContent = validation.message;
+                    usernameFeedback.className = 'username-feedback invalid';
+                    this.style.borderColor = 'var(--error-color)';
+                }
+            } else {
+                usernameFeedback.textContent = '';
+                usernameFeedback.className = 'username-feedback';
+                this.style.borderColor = '';
+            }
+        });
+    }
+
     // Profile form
     const profileForm = document.getElementById('profileForm');
     if (profileForm) {
         profileForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            const newUsername = document.getElementById('editUsername').value.trim();
+            const email = document.getElementById('editEmail').value.trim();
+            const bio = document.getElementById('editBio').value.trim();
+
+            // Username validation
+            const usernameValidation = validateUsernameFormat(newUsername);
+            if (!usernameValidation.isValid) {
+                alert(usernameValidation.message);
+                return;
+            }
+
             const updates = {
-                username: document.getElementById('editUsername').value.trim(),
-                email: document.getElementById('editEmail').value.trim(),
-                bio: document.getElementById('editBio').value.trim()
+                username: newUsername,
+                email: email,
+                bio: bio
             };
 
             const user = getCurrentUser();

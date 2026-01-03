@@ -26,9 +26,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Open signup modal
     if (signupBtn) {
-        signupBtn.addEventListener('click', function() {
+        signupBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const signupModal = document.getElementById('signupModal');
             if (signupModal) {
                 signupModal.style.display = 'block';
+                signupModal.classList.add('show');
+                // Reset form
+                if (signupForm) {
+                    signupForm.reset();
+                }
+                // Clear any messages
+                if (signupMessage) {
+                    signupMessage.textContent = '';
+                    signupMessage.className = 'message';
+                }
+            } else {
+                console.error('Signup modal not found');
             }
         });
     }
@@ -36,8 +51,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close signup modal
     if (closeSignupModal) {
         closeSignupModal.addEventListener('click', function() {
+            const signupModal = document.getElementById('signupModal');
             if (signupModal) {
                 signupModal.style.display = 'none';
+                signupModal.classList.remove('show');
                 if (signupMessage) {
                     signupMessage.textContent = '';
                     signupMessage.className = 'message';
@@ -48,8 +65,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Close modal when clicking outside
     window.addEventListener('click', function(event) {
+        const signupModal = document.getElementById('signupModal');
         if (event.target === signupModal) {
             signupModal.style.display = 'none';
+            signupModal.classList.remove('show');
             if (signupMessage) {
                 signupMessage.textContent = '';
                 signupMessage.className = 'message';
@@ -99,6 +118,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Real-time username validation
+    const signupUsernameInput = document.getElementById('signupUsername');
+    const usernameFeedback = document.createElement('small');
+    usernameFeedback.className = 'username-feedback';
+    if (signupUsernameInput) {
+        signupUsernameInput.parentElement.appendChild(usernameFeedback);
+        
+        signupUsernameInput.addEventListener('input', function() {
+            const username = this.value.trim();
+            if (username.length > 0) {
+                const validation = validateUsernameFormat(username);
+                if (validation.isValid) {
+                    usernameFeedback.textContent = '✓ Username is available';
+                    usernameFeedback.className = 'username-feedback valid';
+                    this.style.borderColor = 'var(--success-color)';
+                } else {
+                    usernameFeedback.textContent = validation.message;
+                    usernameFeedback.className = 'username-feedback invalid';
+                    this.style.borderColor = 'var(--error-color)';
+                }
+            } else {
+                usernameFeedback.textContent = '';
+                usernameFeedback.className = 'username-feedback';
+                this.style.borderColor = '';
+            }
+        });
+    }
+
     // Handle signup form submission
     if (signupForm) {
         signupForm.addEventListener('submit', async function(e) {
@@ -113,6 +160,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Validation
             if (!username || !email || !password || !confirmPassword) {
                 showMessage(signupMessage, 'Please fill in all fields', 'error');
+                return;
+            }
+
+            // Username validation
+            const usernameValidation = validateUsernameFormat(username);
+            if (!usernameValidation.isValid) {
+                showMessage(signupMessage, usernameValidation.message, 'error');
                 return;
             }
 

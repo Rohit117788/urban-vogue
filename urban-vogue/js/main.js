@@ -10,11 +10,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Load user activity stats
-    loadUserStats();
-
-    // Load recent activity
-    loadRecentActivity();
+    // Check if user is logged in
+    const user = getCurrentUser();
+    if (user) {
+        // Load user activity stats only if logged in
+        loadUserStats();
+        loadRecentActivity();
+    } else {
+        // Show guest message
+        const activityList = document.getElementById('activityList');
+        if (activityList) {
+            activityList.innerHTML = `
+                <div class="activity-item">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Please <a href="login.html" style="color: var(--primary-color);">login or register</a> to see your activity and participate in contests.</p>
+                    <span class="activity-time">Just now</span>
+                </div>
+            `;
+        }
+    }
 });
 
 // Load user statistics

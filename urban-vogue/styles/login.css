@@ -180,3 +180,26 @@
     font-size: 0.85rem;
 }
 
+.username-feedback {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.username-feedback.valid {
+    color: var(--success-color);
+}
+
+.username-feedback.invalid {
+    color: var(--error-color);
+}
+
+.username-hint {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+

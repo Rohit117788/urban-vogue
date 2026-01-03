@@ -125,12 +125,101 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
+// Username validation function
+function validateUsername(username) {
+    if (!username) {
+        return { isValid: false, message: 'Username is required' };
+    }
+
+    const trimmed = username.trim();
+
+    // Length validation
+    if (trimmed.length < 3) {
+        return { isValid: false, message: 'Username must be at least 3 characters long' };
+    }
+
+    if (trimmed.length > 20) {
+        return { isValid: false, message: 'Username must be no more than 20 characters long' };
+    }
+
+    // Character validation - allow letters, numbers, underscores, hyphens, and dots
+    if (!/^[a-zA-Z0-9._-]+$/.test(trimmed)) {
+        return {
+            isValid: false,
+            message: 'Username can only contain letters, numbers, underscores, hyphens, and dots'
+        };
+    }
+
+    // Must start with a letter or number
+    if (!/^[a-zA-Z0-9]/.test(trimmed)) {
+        return { isValid: false, message: 'Username must start with a letter or number' };
+    }
+
+    // Cannot be only numbers
+    if (/^\d+$/.test(trimmed)) {
+        return { isValid: false, message: 'Username cannot be only numbers' };
+    }
+
+    // Check for inappropriate words
+    const inappropriateWords = [
+        'damn', 'hell', 'crap', 'piss', 'ass', 'bitch', 'bastard',
+        'idiot', 'stupid', 'dumb', 'retard', 'moron',
+        'hate', 'kill', 'die', 'sex', 'porn', 'xxx',
+        'violence', 'murder', 'weapon'
+    ];
+
+    const lowerUsername = trimmed.toLowerCase();
+    for (const word of inappropriateWords) {
+        if (lowerUsername.includes(word)) {
+            return {
+                isValid: false,
+                message: 'Username contains inappropriate content. Please choose a different username.'
+            };
+        }
+    }
+
+    // Check for inappropriate patterns
+    const inappropriatePatterns = [
+        /f+u+c+k+/i,
+        /s+h+i+t+/i,
+        /a+s+s+h+o+l+e+/i,
+        /b+i+t+c+h+/i,
+        /n+i+g+g+e+r+/i,
+        /f+a+g+/i,
+    ];
+
+    for (const pattern of inappropriatePatterns) {
+        if (pattern.test(trimmed)) {
+            return {
+                isValid: false,
+                message: 'Username contains inappropriate content. Please choose a different username.'
+            };
+        }
+    }
+
+    // Check for repeated characters
+    if (/(.)\1{4,}/.test(trimmed)) {
+        return {
+            isValid: false,
+            message: 'Username contains too many repeated characters.'
+        };
+    }
+
+    return { isValid: true, message: '' };
+}
+
 app.post('/api/auth/signup', async (req, res) => {
     try {
         const { username, email, password, role = 'member' } = req.body;
 
         if (!username || !email || !password) {
             return res.status(400).json({ message: 'All fields required' });
+        }
+
+        // Username validation
+        const usernameValidation = validateUsername(username);
+        if (!usernameValidation.isValid) {
+            return res.status(400).json({ message: usernameValidation.message });
         }
 
         // Password validation
@@ -152,19 +241,19 @@ app.post('/api/auth/signup', async (req, res) => {
         const users = await readData(USERS_FILE);
 
         // Check if username or email already exists
-        if (users.some(u => u.username === username)) {
+        if (users.some(u => u.username === username.trim())) {
             return res.status(400).json({ message: 'Username already exists' });
         }
 
-        if (users.some(u => u.email === email)) {
+        if (users.some(u => u.email === email.trim())) {
             return res.status(400).json({ message: 'Email already exists' });
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
         const newUser = {
             id: Date.now().toString(),
-            username,
-            email,
+            username: username.trim(), // Store trimmed username
+            email: email.trim(),
             passwordHash,
             role: 'member', // Always set to member for security
             bio: '',
@@ -288,6 +377,23 @@ app.put('/api/users/:id', authenticateToken, async (req, res) => {
         }
 
         const updates = req.body;
+
+        // Validate username if it's being updated
+        if (updates.username) {
+            const usernameValidation = validateUsername(updates.username);
+            if (!usernameValidation.isValid) {
+                return res.status(400).json({ message: usernameValidation.message });
+            }
+
+            // Check if username is already taken by another user
+            const existingUser = users.find(u => u.username === updates.username.trim() && u.id !== req.params.id);
+            if (existingUser) {
+                return res.status(400).json({ message: 'Username already exists' });
+            }
+
+            updates.username = updates.username.trim();
+        }
+
         const updatedUser = {
             ...users[userIndex],
             ...updates,

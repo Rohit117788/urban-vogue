@@ -19,8 +19,16 @@
                 <li><a href="index.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="contest.html" class="nav-link"><i class="fas fa-trophy"></i> Contest</a></li>
                 <li><a href="social.html" class="nav-link"><i class="fas fa-users"></i> Social</a></li>
-                <li><a href="account.html" class="nav-link active"><i class="fas fa-user"></i> Account</a></li>
-                <li><a href="#" class="nav-link" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <li><a href="account.html" class="nav-link active" id="accountLink"><i class="fas fa-user"></i> Account</a></li>
+                <li class="nav-auth" id="navAuth">
+                    <a href="login.html" class="nav-link" id="loginRegisterLink">
+                        <i class="fas fa-sign-in-alt"></i> <span id="loginRegisterText">Login/Register</span>
+                    </a>
+                    <div class="user-menu" id="userMenu" style="display: none;">
+                        <span class="user-name-display" id="userNameDisplay"></span>
+                        <a href="#" class="nav-link" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </li>
             </ul>
             <div class="hamburger" id="hamburger">
                 <span></span>
@@ -83,7 +91,11 @@
                             <form id="profileForm" class="settings-form">
                                 <div class="form-group">
                                     <label for="editUsername">Username</label>
-                                    <input type="text" id="editUsername" required>
+                                    <input type="text" id="editUsername" required 
+                                           placeholder="Choose a unique username (3-20 characters)"
+                                           minlength="3" maxlength="20"
+                                           pattern="[a-zA-Z0-9._-]+">
+                                    <small class="username-hint">3-20 characters, letters, numbers, underscores, hyphens, and dots only</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="editEmail">Email</label>
@@ -169,6 +181,7 @@
         </div>
     </footer>
 
+    <script src="js/profanity-filter.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/account.js"></script>
 </body>

@@ -10,33 +10,45 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Publish post
+    // Check if user is logged in
+    const user = getCurrentUser();
     const publishPostBtn = document.getElementById('publishPostBtn');
     const postContent = document.getElementById('postContent');
+    const createPostCard = document.querySelector('.create-post-card');
 
-    if (publishPostBtn) {
-        publishPostBtn.addEventListener('click', async function() {
-            const content = postContent.value.trim();
-            
-            if (!content) {
-                alert('Please enter some content for your post');
-                return;
-            }
+    if (!user) {
+        // Hide post creation if not logged in
+        if (createPostCard) {
+            createPostCard.style.display = 'none';
+        }
+    } else {
+        // Publish post
+        if (publishPostBtn) {
+            publishPostBtn.addEventListener('click', async function() {
+                const content = postContent.value.trim();
+                
+                if (!content) {
+                    alert('Please enter some content for your post');
+                    return;
+                }
 
-            const result = await createPost(content);
-            
-            if (result.success) {
-                postContent.value = '';
-                loadPosts();
-            } else {
-                alert('Error creating post: ' + result.message);
-            }
-        });
+                const result = await createPost(content);
+                
+                if (result.success) {
+                    postContent.value = '';
+                    loadPosts();
+                } else {
+                    alert('Error creating post: ' + result.message);
+                }
+            });
+        }
     }
 
-    // Load posts
+    // Load posts (can be viewed by guests)
     loadPosts();
-    loadActiveMembers();
+    if (user) {
+        loadActiveMembers();
+    }
 });
 
 // Load posts

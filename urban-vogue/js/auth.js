@@ -1,16 +1,12 @@
 // Authentication Management
 const API_BASE_URL = 'http://localhost:3000/api';
 
-// Check if user is logged in
+// Check if user is logged in (without redirecting)
 function checkAuth() {
     const token = localStorage.getItem('authToken');
     const user = localStorage.getItem('user');
     
     if (!token || !user) {
-        // Redirect to login if not authenticated
-        if (!window.location.pathname.includes('login.html')) {
-            window.location.href = 'login.html';
-        }
         return null;
     }
     
@@ -167,11 +163,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Check authentication for other pages
     const user = checkAuth();
+    updateNavigationUI(user);
     if (user) {
         // Update UI with user info
         updateUserUI(user);
     }
 });
+
+// Update navigation based on auth status
+function updateNavigationUI(user) {
+    const loginRegisterLink = document.getElementById('loginRegisterLink');
+    const loginRegisterText = document.getElementById('loginRegisterText');
+    const userMenu = document.getElementById('userMenu');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const accountLink = document.getElementById('accountLink');
+    
+    if (user) {
+        // User is logged in
+        if (loginRegisterLink) {
+            loginRegisterLink.style.display = 'none';
+        }
+        if (userMenu) {
+            userMenu.style.display = 'flex';
+        }
+        if (userNameDisplay) {
+            userNameDisplay.textContent = user.username;
+        }
+        if (accountLink) {
+            accountLink.style.display = 'block';
+        }
+    } else {
+        // User is not logged in
+        if (loginRegisterLink) {
+            loginRegisterLink.style.display = 'block';
+        }
+        if (loginRegisterText) {
+            loginRegisterText.textContent = 'Login/Register';
+        }
+        if (userMenu) {
+            userMenu.style.display = 'none';
+        }
+        if (accountLink) {
+            accountLink.style.display = 'none';
+        }
+    }
+}
 
 // Update UI with user information
 function updateUserUI(user) {
@@ -214,7 +250,16 @@ document.addEventListener('DOMContentLoaded', function() {
         logoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
             if (confirm('Are you sure you want to logout?')) {
-                logout();
+                clearAuth();
+                // Update navigation
+                updateNavigationUI(null);
+                // Redirect to dashboard
+                if (window.location.pathname.includes('account.html')) {
+                    window.location.href = 'index.html';
+                } else {
+                    // Reload page to update UI
+                    window.location.reload();
+                }
             }
         });
     }

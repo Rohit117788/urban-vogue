@@ -10,6 +10,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Check if user is logged in for protected actions
+    const user = getCurrentUser();
+    if (!user) {
+        // Hide create contest button if not logged in
+        const createContestBtn = document.getElementById('createContestBtn');
+        if (createContestBtn) {
+            createContestBtn.style.display = 'none';
+        }
+    }
+
     // Filter buttons
     const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(btn => {

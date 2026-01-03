@@ -91,6 +91,24 @@ body {
     color: var(--primary-color);
 }
 
+.nav-auth {
+    margin-left: auto;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-name-display {
+    color: var(--primary-color);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 20px;
+}
+
 .hamburger {
     display: none;
     flex-direction: column;
@@ -836,6 +854,29 @@ body {
     width: auto;
 }
 
+.username-feedback {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.username-feedback.valid {
+    color: var(--success-color);
+}
+
+.username-feedback.invalid {
+    color: var(--error-color);
+}
+
+.username-hint {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
 .admin-panel {
     background: var(--bg-white);
     padding: 2rem;
@@ -869,6 +910,11 @@ body {
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(5px);
+    overflow-y: auto;
+}
+
+.modal.show {
+    display: block;
 }
 
 .modal-content {

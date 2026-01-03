@@ -53,9 +53,9 @@
                     <span>or</span>
                 </div>
 
-                <button type="button" class="btn btn-secondary btn-block" id="signupBtn">
+                <a href="#" class="btn btn-secondary btn-block" id="signupBtn" style="text-decoration: none; text-align: center;">
                     <i class="fas fa-user-plus"></i> Create Account
-                </button>
+                </a>
             </form>
 
             <div class="login-footer">
@@ -73,7 +73,11 @@
                         <label for="signupUsername">
                             <i class="fas fa-user"></i> Username
                         </label>
-                        <input type="text" id="signupUsername" name="username" required>
+                        <input type="text" id="signupUsername" name="username" required 
+                               placeholder="Choose a unique username (3-20 characters)"
+                               minlength="3" maxlength="20"
+                               pattern="[a-zA-Z0-9._-]+">
+                        <small class="username-hint">3-20 characters, letters, numbers, underscores, hyphens, and dots only</small>
                     </div>
 
                     <div class="form-group">
@@ -117,6 +121,7 @@
         </div>
     </div>
 
+    <script src="js/profanity-filter.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/login.js"></script>
 </body>
